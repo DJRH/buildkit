@@ -6,6 +6,7 @@ spec:
   template:
     # see buildkit/docs/rootless.md for caveats of rootless mode
     spec:
+      shareProcessNamespace: true  # reap zombie processes left by cancelled builds (issue 2855)
       restartPolicy: Never
       initContainers:
         - name: prepare

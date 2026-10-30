@@ -101,6 +101,11 @@ Justification of the `--security-opt` flags:
 > Using `--oci-worker-no-process-sandbox` is discouraged, as it cannot terminate processes that did not exit during an `ExecOp`.
 > Also, `--oci-worker-no-process-sandbox` allows `ExecOp` containers to `kill` (and potentially `ptrace` depending on the seccomp configuration) an arbitrary process in the BuildKit daemon container.
 >
+> In addition, with `--oci-worker-no-process-sandbox`, processes orphaned by cancelled builds are reparented to PID 1 of the daemon container and
+> remain as zombies, as `rootlesskit` does not reap them (see [issue 2855](https://github.com/moby/buildkit/issues/2855)). Run the container with an
+> init process that reaps zombies: `docker run --init ...`, or `shareProcessNamespace: true` in the Kubernetes pod spec (as the
+> [Kubernetes examples](../examples/kubernetes) do), which makes the Kubernetes `pause` process the reaping PID 1.
+>
 > Despite these caveats, the [Kubernetes examples](../examples/kubernetes) uses `--oci-worker-no-process-sandbox`, as Kubernetes lacks the equivalent of `systempaths=unconfined`.
 > (`securityContext.procMount=Unmasked` is similar, but different in the sense that it depends on `hostUsers: false`)
 
